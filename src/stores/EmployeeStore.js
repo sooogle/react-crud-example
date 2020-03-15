@@ -15,7 +15,9 @@ export default class EmployeeStore {
   }
 
   static create(employee) {
+    console.log(employee);
     this.employeeList.push(employee);
+    console.log(JSON.stringify(this.employeeList));
     return new Promise(resolve => {
       setTimeout(() => resolve(employee), 1000);
     });
@@ -23,6 +25,7 @@ export default class EmployeeStore {
 
   static update(employee) {
     this.employeeList = this.employeeList.map(x => (x.id === employee.id ? employee : x));
+    console.log(JSON.stringify(this.employeeList));
     return new Promise(resolve => {
       setTimeout(() => resolve(employee), 1000);
     });

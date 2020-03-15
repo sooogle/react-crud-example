@@ -10,7 +10,7 @@ export class EmployeeCreate extends React.Component {
         id: 'E0005',
         name: '',
         age: '',
-        sex: '2',
+        sex: '1',
       }
     };
   }
@@ -18,7 +18,7 @@ export class EmployeeCreate extends React.Component {
   render() {
     const employee = this.state.employee;
     return (
-      <EmployeeForm employee={employee} loading={false} />
+      <EmployeeForm employee={employee} loading={false} edit={false} />
     );
   }
 

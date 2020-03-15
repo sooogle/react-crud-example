@@ -11,7 +11,7 @@ export class EmployeeUpdate extends React.Component {
         id: '',
         name: '',
         age: '',
-        sex: ''
+        sex: '',
       },
       loading: true,
     };
@@ -29,7 +29,7 @@ export class EmployeeUpdate extends React.Component {
   render() {
     const { employee, loading } = this.state;
     return (
-      <EmployeeForm employee={employee} loading={loading} />
+      <EmployeeForm employee={employee} loading={loading} edit={true} />
     );
   }
 

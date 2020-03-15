@@ -1,22 +1,33 @@
-import * as React from "react";
-import { withRouter } from "react-router-dom";
-import EmployeeService from "../stores/EmployeeStore";
-import { Button, Form } from "semantic-ui-react";
+import * as React from 'react';
+import { withRouter } from 'react-router-dom';
+import EmployeeService from '../stores/EmployeeStore';
+import { Button, Form } from 'semantic-ui-react';
+import Validator from 'validatorjs';
 
 export class EmployeeForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       employee: props.employee,
+      errors: {
+        name: '',
+        age: '',
+      },
       loading: props.loading,
     };
+    this.rules = {
+      name: 'required',
+      age: 'integer',
+    }
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleRadioChange = this.handleRadioChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    // どっかで1度呼べばOK?
+    Validator.useLang('ja');
   }
 
   // propsの変更をstateに伝えて再度レンダリングさせる
-  // compomentWillReceivePropsというフックもあるが廃止予定
+  // compomentWillReceivePropsというフックもあるが廃止予定なので使用しない
   componentDidUpdate(prevProps) {
     const { employee, loading } = this.props;
     // loadingがtrueからfalseに変わったタイミングのみsetStateを実行する
@@ -25,7 +36,7 @@ export class EmployeeForm extends React.Component {
       this.setState({
         employee: { ...employee },
         loading: loading,
-      });  
+      });
     }
   }
 
@@ -34,7 +45,7 @@ export class EmployeeForm extends React.Component {
     return (
       <Form onSubmit={this.handleSubmit} loading={loading}>
         <Form.Field>
-          <label htmlFor="id">従業員コード</label>
+          <label>従業員コード</label>
           <input
             type="text"
             name="id"
@@ -43,7 +54,7 @@ export class EmployeeForm extends React.Component {
           />
         </Form.Field>
         <Form.Field>
-          <label htmlFor="name">氏名</label>
+          <label>氏名</label>
           <input
             type="text"
             name="name"
@@ -52,7 +63,7 @@ export class EmployeeForm extends React.Component {
           />
         </Form.Field>
         <Form.Field>
-          <label htmlFor="age">年齢</label>
+          <label>年齢</label>
           <input
             type="number"
             name="age"
@@ -83,8 +94,13 @@ export class EmployeeForm extends React.Component {
   }
 
   handleInputChange(e) {
-    const employee = this.state.employee;
-    this.setState({ employee: { ...employee, [e.currentTarget.name]: e.currentTarget.value } })
+    const { employee, errors } = this.state;
+    const validation = new Validator({ [e.currentTarget.name]: e.currentTarget.value }, this.rules);
+    validation.fails();
+    this.setState({
+      employee: { ...employee, [e.currentTarget.name]: e.currentTarget.value },
+      errors: { ...errors, [e.currentTarget.name]: validation.errors.first(e.currentTarget.name) },
+    });
   }
 
   // semantic-uiのラジオボタンは純粋なhtmlコンポーネントではないので、イベントからnameとvalueを取れない
@@ -93,9 +109,13 @@ export class EmployeeForm extends React.Component {
     this.setState({ employee: { ...employee, [target.name]: target.value } })
   }
 
-  handleSubmit(e) {
+  async handleSubmit(e) {
     e.preventDefault();
-    EmployeeService.create(this.state.employee);
+    if (this.props.edit) {
+      await EmployeeService.update(this.state.employee);
+    } else {
+      await EmployeeService.create(this.state.employee);
+    }
     this.props.history.push("/");
   }
 }
